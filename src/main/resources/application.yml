@@ -1,0 +1,38 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: spring-demo
+  jackson:
+    locale: zh_CN
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    # 值为null或空字符串时不序列化
+    default-property-inclusion: NON_EMPTY
+    serialization:
+      # 美化输出
+      indent-output: true
+      # 忽略一个字段也没有的POJO的序列化
+      fail-on-empty-beans: false
+      write-dates-as-timestamps: false
+    deserialization:
+      # 在反序列化时忽略在 json 中存在但 Java 对象不存在的属性
+      fail-on-unknown-properties: false
+  # redis配置
+  redis:
+    host: 127.0.0.1
+    database: 0
+    port: 6379
+    password:
+    #连接超时时间(亳秒)
+    timeout: 1800000
+    lettuce:
+      pool:
+        #连接池最大连接数（使用负值表示没有限制)
+        max-active: 20
+        #最大阻塞等待时间(负数表示没限制)
+        max-wait: -1
+        #连接池中的最大空闲连接
+        max-idle: 5
+        #连接池中的最小空闲连接
+        min-idle: 0

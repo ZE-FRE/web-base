@@ -1,0 +1,6 @@
+.git
+.idea
+*.iml
+target/
+*.class
+hs_err_pid*
