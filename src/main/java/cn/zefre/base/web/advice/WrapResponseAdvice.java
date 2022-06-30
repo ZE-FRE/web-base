@@ -27,11 +27,12 @@ public class WrapResponseAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         Class<?> methodReturnType = returnType.getMethod().getReturnType();
+        // 方法返回值类型是否是void
         boolean returnTypeIsVoid = methodReturnType.isAssignableFrom(Void.class);
         // 类上或方法上是否有@WrapResponse注解标识
         boolean hasWrapResponse = returnType.getDeclaringClass().isAnnotationPresent(WrapResponse.class)
                 || returnType.hasMethodAnnotation(WrapResponse.class);
-        // 方法上是否有@RawTypeResponse注解标识
+        // 方法上是否有@RawResponse注解标识
         boolean hasRawResponse = returnType.hasMethodAnnotation(RawResponse.class);
         return hasWrapResponse && !hasRawResponse && !returnTypeIsVoid;
     }
