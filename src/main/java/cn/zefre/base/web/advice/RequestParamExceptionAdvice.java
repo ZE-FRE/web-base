@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import javax.servlet.ServletException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -67,15 +68,6 @@ public class RequestParamExceptionAdvice {
     public UniformResponse httpRequestException(ServletException e) {
         log.info(e.getMessage());
         return UniformResponse.error(e.getMessage());
-    }
-
-    /**
-     * 全局异常
-     */
-    @ExceptionHandler(Exception.class)
-    public UniformResponse exception(Exception e) {
-        log.warn(e.getMessage());
-        return UniformResponse.error();
     }
 
 }

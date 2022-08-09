@@ -29,7 +29,7 @@ import java.time.Duration;
 public class RedisConfig extends CachingConfigurerSupport {
 
     @Bean
-//    @SuppressWarnings("all")
+    @SuppressWarnings("all")
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
@@ -52,7 +52,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     }
 
     @Bean
-//    @SuppressWarnings("all")
+    @SuppressWarnings("all")
     public CacheManager cacheManager(RedisConnectionFactory factory){
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
