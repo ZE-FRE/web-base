@@ -13,6 +13,8 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import javax.annotation.Resource;
+
 /**
  * 包装controller接口返回数据
  *
@@ -22,7 +24,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @ControllerAdvice
 public class WrapResponseAdvice implements ResponseBodyAdvice<Object> {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -31,7 +34,7 @@ public class WrapResponseAdvice implements ResponseBodyAdvice<Object> {
         // 类上或方法上是否有@WrapResponse注解标识
         boolean hasWrapResponse = returnType.getDeclaringClass().isAnnotationPresent(WrapResponse.class)
                 || returnType.hasMethodAnnotation(WrapResponse.class);
-        // 方法上是否有@RawTypeResponse注解标识
+        // 方法上是否有@RawResponse注解标识
         boolean hasRawResponse = returnType.hasMethodAnnotation(RawResponse.class);
         return hasWrapResponse && !hasRawResponse && !returnTypeIsVoid;
     }
@@ -41,11 +44,13 @@ public class WrapResponseAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
-        if (body instanceof String)
+        if (body instanceof String) {
             return objectMapper.writeValueAsString(UniformResponse.ok(body));
-        if (body instanceof UniformResponse)
+        } else if (body instanceof UniformResponse) {
             return body;
-        return UniformResponse.ok(body);
+        } else {
+            return UniformResponse.ok(body);
+        }
     }
 
 
