@@ -2,6 +2,8 @@ package cn.zefre.base.web.advice;
 
 import cn.zefre.base.web.response.UniformResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
@@ -18,14 +20,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 请求异常处理
+ * 请求参数异常处理
  *
  * @author pujian
  * @date 2022/1/25 11:01
  */
 @Slf4j
-@ResponseStatus(HttpStatus.BAD_REQUEST)
 @RestControllerAdvice
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class RequestParamExceptionAdvice {
 
     /**
@@ -66,7 +69,7 @@ public class RequestParamExceptionAdvice {
      */
     @ExceptionHandler(ServletException.class)
     public UniformResponse httpRequestException(ServletException e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage());
         return UniformResponse.error(e.getMessage());
     }
 

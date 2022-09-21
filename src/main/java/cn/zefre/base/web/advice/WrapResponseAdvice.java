@@ -13,6 +13,8 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import javax.annotation.Resource;
+
 /**
  * 包装controller接口返回数据
  *
@@ -22,7 +24,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @ControllerAdvice
 public class WrapResponseAdvice implements ResponseBodyAdvice<Object> {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -42,11 +45,13 @@ public class WrapResponseAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
-        if (body instanceof String)
+        if (body instanceof String) {
             return objectMapper.writeValueAsString(UniformResponse.ok(body));
-        if (body instanceof UniformResponse)
+        } else if (body instanceof UniformResponse) {
             return body;
-        return UniformResponse.ok(body);
+        } else {
+            return UniformResponse.ok(body);
+        }
     }
 
 
