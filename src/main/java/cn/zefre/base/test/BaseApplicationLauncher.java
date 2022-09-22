@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date 2022/3/25 15:01
  */
 @SpringBootApplication
-public class LaunchApplication {
+public class BaseApplicationLauncher {
 
     public static void main(String[] args) {
-        SpringApplication.run(LaunchApplication.class, args);
+        SpringApplication.run(BaseApplicationLauncher.class, args);
     }
 }

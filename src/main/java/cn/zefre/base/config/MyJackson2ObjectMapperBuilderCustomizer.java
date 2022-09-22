@@ -108,6 +108,6 @@ public class MyJackson2ObjectMapperBuilderCustomizer implements Jackson2ObjectMa
 
     @Override
     public int getOrder() {
-        return 1;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 }
