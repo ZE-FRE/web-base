@@ -36,7 +36,7 @@ import java.time.format.DateTimeFormatter;
 @Configuration
 public class JacksonConfig {
 
-    static class CommonJackson2ObjectMapperBuilderCustomizer implements Jackson2ObjectMapperBuilderCustomizer, Ordered {
+    static class CommonJackson2ObjectMapperBuilderCustomizer implements Jackson2ObjectMapperBuilderCustomizer {
 
         private static final String DATE_FORMAT = "yyyy-MM-dd";
         private static final String TIME_FORMAT = "HH:mm:ss";
@@ -71,7 +71,11 @@ public class JacksonConfig {
             javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern(DATE_FORMAT)));
             javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern(TIME_FORMAT)));
             javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(DATETIME_FORMAT)));
-            jacksonObjectMapperBuilder.modules(javaTimeModule);
+            // 注册序列化器与反序列化器
+            SimpleModule simpleModule = new SimpleModule();
+            simpleModule.addSerializer(BaseEnum.class, new BaseEnumDescriptionSerializer());
+            simpleModule.setDeserializers(new BaseEnumDeserializers());
+            jacksonObjectMapperBuilder.modules(javaTimeModule, simpleModule);
 
             // jacksonObjectMapperBuilder.featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             // 默认关闭，将char[]数组序列化为String类型。若开启后序列化为JSON数组。
@@ -112,39 +116,11 @@ public class JacksonConfig {
             jacksonObjectMapperBuilder.featuresToEnable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
 
         }
-
-        @Override
-        public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-        }
     }
 
     @Bean
     public CommonJackson2ObjectMapperBuilderCustomizer commonCustomizer() {
         return new CommonJackson2ObjectMapperBuilderCustomizer();
-    }
-
-
-    /**
-     * 用于注册自定义枚举类序列化器与反序列化器
-     *
-     * @author pujian
-     * @date 2023/1/16 18:33
-     */
-    static class BaseEnumJackson2ObjectMapperBuilderCustomizer implements Jackson2ObjectMapperBuilderCustomizer {
-        @Override
-        public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
-            SimpleModule simpleModule = new SimpleModule();
-            // 注册序列化器与反序列化器
-            simpleModule.addSerializer(BaseEnum.class, new BaseEnumDescriptionSerializer());
-            simpleModule.setDeserializers(new BaseEnumDeserializers());
-            jacksonObjectMapperBuilder.modules(simpleModule);
-        }
-    }
-
-    @Bean
-    public Jackson2ObjectMapperBuilderCustomizer baseEnumCustomizer() {
-        return new BaseEnumJackson2ObjectMapperBuilderCustomizer();
     }
 
 
