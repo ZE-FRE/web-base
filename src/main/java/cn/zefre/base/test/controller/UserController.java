@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,6 +70,25 @@ public class UserController {
     @GetMapping("getByIdList")
     public List<String> getByIdList() {
         return Arrays.asList("zhagnsan", "lisi");
+    }
+
+
+    @GetMapping("testString")
+    public String testString(@RequestParam(value = "orderNoParam", required = false) Long orderNo, String description) {
+        System.out.println("进入");
+        return "返回文本";
+    }
+
+    @PostMapping("testRequestBody")
+    public UserDto testRequestBody(@RequestBody UserDto userDto) {
+        System.out.println("处理业务");
+        return new UserDto("123", "张三");
+    }
+
+    @PostMapping("testForm")
+    public UserDto testForm(UserDto userDto) {
+        System.out.println("处理表单业务");
+        return new UserDto("456", "李四");
     }
 
 }

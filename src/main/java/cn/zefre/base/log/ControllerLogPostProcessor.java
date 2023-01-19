@@ -1,4 +1,4 @@
-package cn.zefre.base.aop.log;
+package cn.zefre.base.log;
 
 import org.springframework.aop.framework.AbstractAdvisingBeanPostProcessor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -6,7 +6,6 @@ import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
@@ -18,7 +17,7 @@ import java.lang.reflect.Method;
  * @author pujian
  * @date 2023/1/17 16:40
  */
-@Component
+//@Component
 public class ControllerLogPostProcessor extends AbstractAdvisingBeanPostProcessor implements InitializingBean {
 
     @Resource
@@ -31,6 +30,8 @@ public class ControllerLogPostProcessor extends AbstractAdvisingBeanPostProcesso
      * {@link org.springframework.web.bind.annotation.PutMapping}
      * {@link org.springframework.web.bind.annotation.DeleteMapping}
      * 等注解也有效
+     *
+     * 问题：会把feign接口也拦截，打印出不恰当的日志
      *
      * @author pujian
      * @date 2023/1/17 17:42

@@ -1,4 +1,4 @@
-package cn.zefre.base.aop.log;
+package cn.zefre.base.log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import java.util.*;
  * @date 2023/1/17 17:39
  */
 @Slf4j
-@Component
+//@Component
 public class ControllerLogInterceptor implements MethodInterceptor {
 
     @Resource
@@ -45,8 +45,12 @@ public class ControllerLogInterceptor implements MethodInterceptor {
     private static final Set<Class<?>> exclusionClasses = new HashSet<>(Arrays.asList(HttpServletRequest.class, HttpServletResponse.class, MultipartFile.class));
 
     private boolean isExclusionClass(Object obj) {
-        Class<?> clazz = obj.getClass();
-        return exclusionClasses.contains(clazz);
+        for (Class<?> exclusionClass : exclusionClasses) {
+            if (exclusionClass.isAssignableFrom(obj.getClass())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
