@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "spring.mvc.log.enabled",
+      "type": "java.lang.Boolean",
+      "description": "whether log request and response."
+    }
+  ]
+}

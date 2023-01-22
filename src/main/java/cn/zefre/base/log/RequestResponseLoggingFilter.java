@@ -1,6 +1,7 @@
 package cn.zefre.base.log;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 import org.springframework.web.filter.AbstractRequestLoggingFilter;
@@ -33,6 +34,12 @@ public class RequestResponseLoggingFilter extends AbstractRequestLoggingFilter {
 
     private static final String JSON_TYPE = "application/json";
 
+    /**
+     * 是否打印请求与响应日志
+     */
+    @Value("${spring.mvc.log.enabled:true}")
+    private boolean enabled;
+
     public RequestResponseLoggingFilter() {
         // 设置默认参数
         this.setIncludeQueryString(true);
@@ -40,6 +47,10 @@ public class RequestResponseLoggingFilter extends AbstractRequestLoggingFilter {
         this.setMaxPayloadLength(2000);
     }
 
+    @Override
+    protected boolean shouldLog(HttpServletRequest request) {
+        return this.enabled;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -70,9 +81,9 @@ public class RequestResponseLoggingFilter extends AbstractRequestLoggingFilter {
                     // 获取响应信息
                     byte[] responseBuf = responseToUse.getContentAsByteArray();
                     responseMessage = new String(responseBuf);
-                    // 读取过响应信息后，需要复制到响应流，才能正常响应response body信息
-                    responseToUse.copyBodyToResponse();
                 }
+                // 需要将response body复制到响应流，才能正常响应response body信息
+                responseToUse.copyBodyToResponse();
                 stopWatch.stop();
                 // 调用花费时间
                 long costTime = stopWatch.getLastTaskInfo().getTimeMillis();

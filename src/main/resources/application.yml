@@ -18,6 +18,11 @@ spring:
     deserialization:
       # 在反序列化时忽略在 json 中存在但 Java 对象不存在的属性
       fail-on-unknown-properties: false
+  mvc:
+    log:
+      # 是否打印请求与响应日志
+      enabled: true
+
 
 #显示请求及响应日志
 #logging.level.org.springframework.web=trace
