@@ -1,12 +1,13 @@
 package cn.zefre.base.log;
 
+import cn.zefre.base.config.BaseProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.StopWatch;
 import org.springframework.web.filter.AbstractRequestLoggingFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
+import org.springframework.web.util.WebUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -21,7 +22,6 @@ import java.io.IOException;
  * @date 2023/1/18 17:02
  */
 @Slf4j
-@Component
 public class RequestResponseLoggingFilter extends AbstractRequestLoggingFilter {
 
     private static final String BEFORE_MESSAGE_PREFIX = "Before request ";
@@ -34,13 +34,28 @@ public class RequestResponseLoggingFilter extends AbstractRequestLoggingFilter {
 
     private static final String JSON_TYPE = "application/json";
 
+    private BaseProperties.MvcLog mvcLog;
+
     /**
-     * 是否打印请求与响应日志
+     * 是否打印请求日志
      */
-    @Value("${spring.mvc.log.enabled:true}")
-    private boolean enabled;
+    public boolean isLogRequest() {
+        return mvcLog.isLogRequest();
+    }
+
+    /**
+     * 是否打印响应日志
+     */
+    public boolean isLogResponse() {
+        return mvcLog.isLogResponse();
+    }
 
     public RequestResponseLoggingFilter() {
+        this(new BaseProperties.MvcLog());
+    }
+
+    public RequestResponseLoggingFilter(BaseProperties.MvcLog mvcLog) {
+        this.mvcLog = mvcLog;
         // 设置默认参数
         this.setIncludeQueryString(true);
         this.setIncludePayload(true);
@@ -49,47 +64,68 @@ public class RequestResponseLoggingFilter extends AbstractRequestLoggingFilter {
 
     @Override
     protected boolean shouldLog(HttpServletRequest request) {
-        return this.enabled;
+        return mvcLog.isEnable();
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        boolean isFirstRequest = !isAsyncDispatch(request);
-        HttpServletRequest requestToUse = request;
-        if (isIncludePayload() && isFirstRequest && !(request instanceof ContentCachingRequestWrapper)) {
-            requestToUse = new ContentCachingRequestWrapper(request, getMaxPayloadLength());
-        }
-        if (!shouldLog(requestToUse)) {
+        if (!shouldLog(request)) {
             // 不需要打印日志
-            filterChain.doFilter(requestToUse, response);
+            filterChain.doFilter(request, response);
             return;
         }
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        ContentCachingResponseWrapper responseToUse = new ContentCachingResponseWrapper(response);
+        boolean isFirstRequest = !isAsyncDispatch(request);
+        HttpServletRequest requestToUse = request;
+        if (isLogRequest() && isIncludePayload() && isFirstRequest && !(request instanceof ContentCachingRequestWrapper)) {
+            requestToUse = new ContentCachingRequestWrapper(request, getMaxPayloadLength());
+        }
+        HttpServletResponse responseToUse = isLogResponse() ? new ContentCachingResponseWrapper(response) : response;
         if (isFirstRequest) {
-            beforeRequest(requestToUse, createMessage(request, BEFORE_MESSAGE_PREFIX, BEFORE_MESSAGE_SUFFIX));
+            beforeRequest(requestToUse, createMessage(requestToUse, BEFORE_MESSAGE_PREFIX, BEFORE_MESSAGE_SUFFIX));
         }
         try {
             filterChain.doFilter(requestToUse, responseToUse);
-        }
-        finally {
+        } finally {
             if (!isAsyncStarted(requestToUse)) {
-                String requestMessage = createMessage(request, AFTER_MESSAGE_PREFIX, AFTER_MESSAGE_SUFFIX);
-                String responseMessage = "";
-                if (responseToUse.getContentType() != null && JSON_TYPE.contains(responseToUse.getContentType())) {
-                    // 获取响应信息
-                    byte[] responseBuf = responseToUse.getContentAsByteArray();
-                    responseMessage = new String(responseBuf);
-                }
-                // 需要将response body复制到响应流，才能正常响应response body信息
-                responseToUse.copyBodyToResponse();
+                String requestAfterMessage = createRequestAfterMessage(requestToUse);
+                String responseMessage = createResponseMessage(responseToUse);
                 stopWatch.stop();
                 // 调用花费时间
                 long costTime = stopWatch.getLastTaskInfo().getTimeMillis();
-                log.info("{}，花费时间：{}(毫秒)，response={}", requestMessage, costTime, responseMessage);
+                log.info(String.format("%s花费时间：%s(毫秒)%s", requestAfterMessage, costTime, responseMessage));
             }
         }
+    }
+
+    private String createRequestAfterMessage(HttpServletRequest request) {
+        String blank = "  ";
+        if (isLogRequest()) {
+            return createMessage(request, AFTER_MESSAGE_PREFIX, AFTER_MESSAGE_SUFFIX) + blank;
+        } else {
+            return blank;
+        }
+    }
+
+    private String createResponseMessage(HttpServletResponse response) throws IOException {
+        String responseMessage = "";
+        if (!isLogResponse()) {
+            return responseMessage;
+        }
+        ContentCachingResponseWrapper responseWrapper = WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
+        Assert.notNull(responseWrapper, "ContentCachingResponseWrapper not found");
+        // 只记录响应体为json的
+        if (responseWrapper.getContentType() != null &&
+                JSON_TYPE.contains(responseWrapper.getContentType())) {
+            // 获取响应信息
+            byte[] responseBuf = responseWrapper.getContentAsByteArray();
+            responseMessage = "response=" + new String(responseBuf);
+        }
+        // 需要将response body复制到响应流，才能正常响应response body信息
+        responseWrapper.copyBodyToResponse();
+        return responseMessage;
     }
 
     @Override
