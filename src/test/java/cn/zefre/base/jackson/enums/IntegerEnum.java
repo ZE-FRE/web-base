@@ -1,4 +1,4 @@
-package cn.zefre.base.enums;
+package cn.zefre.base.jackson.enums;
 
 import cn.zefre.base.jackson.BaseEnum;
 import lombok.Getter;

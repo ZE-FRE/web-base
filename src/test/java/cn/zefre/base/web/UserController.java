@@ -1,6 +1,5 @@
-package cn.zefre.base.test.controller;
+package cn.zefre.base.web;
 
-import cn.zefre.base.test.controller.dto.UserDto;
 import cn.zefre.base.web.annotation.RawResponse;
 import cn.zefre.base.web.annotation.WrapResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +45,7 @@ public class UserController {
         return 10;
     }
 
-    // @RequestMapping注解的consumes表示要求客户端请求头的Content-Type，而produces表示产生的，即返回给客户端的响应头的Content-Type
-    @GetMapping(value = "getString", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "getString")
     public String getString() {
         return "A Letter";
     }
@@ -72,22 +70,14 @@ public class UserController {
         return Arrays.asList("zhagnsan", "lisi");
     }
 
-
-    @GetMapping("testString")
-    public String testString(@RequestParam(value = "orderNoParam", required = false) Long orderNo, String description) {
-        System.out.println("进入");
-        return "返回文本";
-    }
-
-    @PostMapping("testRequestBody")
+    // @RequestMapping注解的consumes表示要求客户端请求头的Content-Type，而produces表示产生的，即返回给客户端的响应头的Content-Type
+    @PostMapping(value = "testRequestBody", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserDto testRequestBody(@RequestBody UserDto userDto) {
-        System.out.println("处理业务");
         return new UserDto("123", "张三");
     }
 
     @PostMapping("testForm")
     public UserDto testForm(UserDto userDto) {
-        System.out.println("处理表单业务");
         return new UserDto("456", "李四");
     }
 

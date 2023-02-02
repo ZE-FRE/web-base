@@ -1,9 +1,8 @@
-package cn.zefre.base;
+package cn.zefre.base.jackson;
 
-import cn.zefre.base.enums.ByteEnum;
-import cn.zefre.base.enums.IntegerEnum;
-import cn.zefre.base.enums.StringEnum;
-import cn.zefre.base.jackson.BaseEnum;
+import cn.zefre.base.jackson.enums.ByteEnum;
+import cn.zefre.base.jackson.enums.IntegerEnum;
+import cn.zefre.base.jackson.enums.StringEnum;
 import cn.zefre.base.jackson.deserializer.BaseEnumDeserializers;
 import cn.zefre.base.jackson.serializer.BaseEnumCodeSerializer;
 import cn.zefre.base.jackson.serializer.BaseEnumDescriptionSerializer;

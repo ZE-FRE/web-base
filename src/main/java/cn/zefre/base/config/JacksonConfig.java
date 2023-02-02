@@ -3,6 +3,7 @@ package cn.zefre.base.config;
 import cn.zefre.base.jackson.BaseEnum;
 import cn.zefre.base.jackson.deserializer.BaseEnumDeserializers;
 import cn.zefre.base.jackson.serializer.BaseEnumDescriptionSerializer;
+import cn.zefre.base.jackson.serializer.LongToStringSerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -19,7 +20,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.time.LocalDate;
@@ -76,6 +76,10 @@ public class JacksonConfig {
             simpleModule.addSerializer(BaseEnum.class, new BaseEnumDescriptionSerializer());
             simpleModule.setDeserializers(new BaseEnumDeserializers());
             jacksonObjectMapperBuilder.modules(javaTimeModule, simpleModule);
+
+            // 将Long和long序列化为字符串
+            jacksonObjectMapperBuilder.serializerByType(Long.class, new LongToStringSerializer());
+            jacksonObjectMapperBuilder.serializerByType(long.class, new LongToStringSerializer());
 
             // jacksonObjectMapperBuilder.featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             // 默认关闭，将char[]数组序列化为String类型。若开启后序列化为JSON数组。
